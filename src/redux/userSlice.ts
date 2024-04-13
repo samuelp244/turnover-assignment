@@ -22,8 +22,11 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
-    resetSlice(state) {
-      (state.email = null), (state.name = null), (state.userId = null);
+    resetUserSlice(state) {
+      (state.email = null),
+        (state.name = null),
+        (state.userId = null),
+        (state.accessToken = null);
     },
     addUserData(state, action: PayloadAction<userDataPayload>) {
       (state.email = action.payload.email),
@@ -33,13 +36,10 @@ const userSlice = createSlice({
     addAccessToken(state, action: PayloadAction<{ accessToken: string }>) {
       state.accessToken = action.payload.accessToken;
     },
-    resetAccessToken(state) {
-      state.accessToken = null;
-    },
   },
 });
 
-export const { resetSlice, addUserData, addAccessToken, resetAccessToken } =
+export const { resetUserSlice, addUserData, addAccessToken } =
   userSlice.actions;
 
 export default userSlice.reducer;

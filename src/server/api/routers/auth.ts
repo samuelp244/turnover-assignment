@@ -1,4 +1,3 @@
-
 import { z } from "zod";
 import bcrypt from "bcrypt";
 import { createTRPCRouter, publicProcedure } from "npm/server/api/trpc";
@@ -7,6 +6,7 @@ import mailSender from "npm/utils/mailer";
 import { sessionCreator } from "npm/utils/sessionCreator";
 import { setCookie } from "npm/utils/cookieHandlers";
 
+const CUSTOM_DOMAIN = process.env.CUSTOM_DOMAIN;
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure
     .input(
@@ -145,14 +145,24 @@ export const authRouter = createTRPCRouter({
           return { success: false, message: "incorrect password" };
         }
         const accessToken = await sessionCreator({ userData });
-        if(accessToken) setCookie(ctx.res, "access_token", accessToken, {
-          httpOnly: true,
-          path: "/",
-          sameSite: false,
-          domain: "localhost",
-          secure: false,
-          expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
-        });
+        if (accessToken) {
+          setCookie(ctx.res, "turnover_token", accessToken, {
+            httpOnly: true,
+            path: "/",
+            sameSite: false,
+            domain: "localhost",
+            secure: false,
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+          });
+          setCookie(ctx.res, "turnover_token", accessToken, {
+            httpOnly: true,
+            path: "/",
+            sameSite: false,
+            domain: CUSTOM_DOMAIN,
+            secure: false,
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+          });
+        }
         return {
           success: true,
           message: "Successfully logged in",
@@ -161,10 +171,33 @@ export const authRouter = createTRPCRouter({
           },
         };
       } catch (error) {
-        console.log(error)
+        console.log(error);
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
+  signOut: publicProcedure.mutation(async({ ctx })=>{
+    try{
+      setCookie(ctx.res, "turnover_token", "null", {
+        httpOnly: true,
+        path: "/",
+        sameSite: false,
+        domain: "localhost",
+        secure: false,
+        expires: new Date(),
+      });
+      setCookie(ctx.res, "turnover_token", "null", {
+        httpOnly: true,
+        path: "/",
+        sameSite: false,
+        domain: CUSTOM_DOMAIN,
+        secure: false,
+        expires: new Date(),
+      });
+      return {success:true,message:'Successfully signed out'}
+    }catch(error){
+      throw new TRPCError({code:'INTERNAL_SERVER_ERROR'})
+    }
+  }),
 });
 
 // methods
