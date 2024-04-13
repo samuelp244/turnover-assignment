@@ -1,8 +1,10 @@
-import { useAppSelector } from "npm/redux/hooks";
+import { useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "npm/redux/hooks";
 import { api } from "npm/utils/api";
 import { hideEmail } from "npm/utils/comman";
 import React, { type ChangeEvent, useRef, useState } from "react";
-
+import jwt from "jsonwebtoken";
+import { addAccessToken, addUserData, userDataPayload } from "npm/redux/userSlice";
 const Verify = () => {
   const userSliceData = useAppSelector((state) => state.user);
   const [otp, setOtp] = useState<string[]>(Array(8).fill(""));
@@ -31,7 +33,8 @@ const Verify = () => {
       inputRefs.current[index - 1]?.focus();
     }
   };
-
+  const dispatch = useAppDispatch();
+  const router = useRouter();
   const handleInputClick = (index: number): void => {
     const emptyIndex = otp.findIndex((digit) => digit === "");
     if (emptyIndex !== -1 && inputRefs.current[emptyIndex]) {
@@ -39,8 +42,15 @@ const Verify = () => {
     }
   };
   const submitOTP = api.auth.verifyOTP.useMutation({
-    onSuccess: () => {
-      console.log("verified");
+    onSuccess: async (response) => {
+      if (response.success && response.data?.accessToken) {
+        dispatch(addAccessToken({ accessToken: response.data.accessToken }));
+        const payload = jwt.decode(
+          response.data.accessToken,
+        ) as userDataPayload;
+        dispatch(addUserData(payload));
+        await router.push("/interests");
+      }
     },
   });
   const handleSubmit = () => {
@@ -90,7 +100,7 @@ const Verify = () => {
           onClick={handleSubmit}
           className="mt-4 w-full rounded-md bg-black p-3 text-white"
         >
-          {false ? "submitting..." : "VERIFY"}
+          {submitOTP.isPending ? "submitting..." : "VERIFY"}
         </button>
       </div>
     </main>

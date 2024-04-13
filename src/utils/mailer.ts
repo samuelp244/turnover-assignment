@@ -23,7 +23,6 @@ const mailSender = async ({ email, title, body }: MailSenderProps) => {
       subject: title,
       html: body,
     });
-    console.log("Email info: ", info);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-return
     return info;
   } catch (error: any) {

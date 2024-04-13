@@ -38,7 +38,6 @@ export default function Login() {
         ) as userDataPayload;
         dispatch(addUserData(payload));
         await router.push("/interests");
-        console.log("user logged in!");
       }
     },
   });

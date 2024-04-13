@@ -9,8 +9,6 @@ import { type ChangeEvent, type FormEvent, useState } from "react";
 import { z } from "zod";
 
 export default function Home() {
-  // const hello = api.post.hello.useQuery({ text: "sam" });
-  // console.log(hello.data?.greeting);
   const [user, setUser] = useState({
     name: "",
     email: "",
@@ -37,7 +35,6 @@ export default function Home() {
         }),
       );
       await router.push("/verify");
-      console.log("user saved!");
     },
   });
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {

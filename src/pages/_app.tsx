@@ -27,7 +27,6 @@ const MyApp: AppType = ({ Component, pageProps }) => {
     }
     return <Component {...pageProps} />;
   };
-  console.log({ pathname });
   return (
     <main className={`font-sans ${inter.variable}`}>
       <Providers>

@@ -109,11 +109,31 @@ export const authRouter = createTRPCRouter({
             message: "unable to update email verification status",
           };
         }
+        const accessToken = await sessionCreator({ userData: updateUserInfo });
+        if (accessToken) {
+          setCookie(ctx.res, "turnover_token", accessToken, {
+            httpOnly: true,
+            path: "/",
+            sameSite: false,
+            domain: "localhost",
+            secure: false,
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+          });
+          setCookie(ctx.res, "turnover_token", accessToken, {
+            httpOnly: true,
+            path: "/",
+            sameSite: false,
+            domain: CUSTOM_DOMAIN,
+            secure: false,
+            expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7),
+          });
+        }
         return {
           success: true,
           message: "email has been successfully verified",
-          userOtpData,
-          updateUserInfo,
+          data: {
+            accessToken,
+          },
         };
       } catch (error) {
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
@@ -171,7 +191,6 @@ export const authRouter = createTRPCRouter({
           },
         };
       } catch (error) {
-        console.log(error);
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),

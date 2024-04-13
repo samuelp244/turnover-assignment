@@ -33,7 +33,7 @@ export const interestsRouter = createTRPCRouter({
         if (!response) return { success: false, message: "" };
         return { success: true, message: "successfully added" };
       } catch (error) {
-        console.log(error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
   addUserInterest: privateProcedure
