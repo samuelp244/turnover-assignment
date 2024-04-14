@@ -67,7 +67,7 @@ const Verify = () => {
     }
   };
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center ">
+    <main className="flex min-h-[90vh] flex-col items-center justify-center ">
       <div className="flex min-w-[576px] flex-col items-center justify-center rounded-xl border-2 border-[#C1C1C1] p-10">
         <h1 className="mb-10 text-3xl font-semibold text-black">
           Verify your email

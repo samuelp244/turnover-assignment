@@ -5,8 +5,11 @@ import { TRPCError } from "@trpc/server";
 import mailSender from "npm/utils/mailer";
 import { sessionCreator } from "npm/utils/sessionCreator";
 import { setCookie } from "npm/utils/cookieHandlers";
+import jwt from "jsonwebtoken";
+import { type userDataPayload } from "npm/redux/userSlice";
 
 const CUSTOM_DOMAIN = process.env.CUSTOM_DOMAIN;
+const JWT_SECRET = process.env.JWT_SECRET ?? "";
 export const authRouter = createTRPCRouter({
   signUp: publicProcedure
     .input(
@@ -194,8 +197,8 @@ export const authRouter = createTRPCRouter({
         throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
       }
     }),
-  signOut: publicProcedure.mutation(async({ ctx })=>{
-    try{
+  signOut: publicProcedure.mutation(async ({ ctx }) => {
+    try {
       setCookie(ctx.res, "turnover_token", "null", {
         httpOnly: true,
         path: "/",
@@ -212,9 +215,42 @@ export const authRouter = createTRPCRouter({
         secure: false,
         expires: new Date(),
       });
-      return {success:true,message:'Successfully signed out'}
-    }catch(error){
-      throw new TRPCError({code:'INTERNAL_SERVER_ERROR'})
+      return { success: true, message: "Successfully signed out" };
+    } catch (error) {
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+    }
+  }),
+  renewAccessToken: publicProcedure.mutation(async ({ ctx }) => {
+    try {
+      const refreshToken = ctx.req.cookies.turnover_token!;
+      if (!refreshToken) throw new TRPCError({ code: "UNAUTHORIZED" });
+      const refreshPayload = jwt.verify(refreshToken, JWT_SECRET) as userDataPayload;
+      const newPayload = {
+        userId: refreshPayload.userId,
+        email: refreshPayload.email,
+        name: refreshPayload.name,
+      };
+      const accessToken = jwt.sign(newPayload, JWT_SECRET, {
+        expiresIn: Math.floor(Date.now() / 1000) + 60 * 60 * 24,
+        algorithm: "HS256",
+      });
+      await ctx.db.session.create({
+        data: {
+          userId: newPayload.userId,
+          expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24),
+          createdAt: new Date(),
+        },
+      });
+      return {
+        success: true,
+        message: "Successfully fetched new access token",
+        data: {
+          accessToken,
+        },
+      };
+    } catch (error) {
+      console.log({error})
+      throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
     }
   }),
 });

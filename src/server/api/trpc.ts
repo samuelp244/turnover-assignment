@@ -9,7 +9,7 @@ import { ZodError } from "zod";
 
 import { db } from "npm/server/db";
 import jwt from "jsonwebtoken";
-import { userDataPayload } from "npm/redux/userSlice";
+import { type userDataPayload } from "npm/redux/userSlice";
 
 type CreateContextOptions = {
   req: NextApiRequest;

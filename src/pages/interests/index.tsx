@@ -9,7 +9,7 @@ const Interests = () => {
     { interestId: string; interestName: string; interestChecked: boolean }[]
   >([]);
   const [page, setPage] = useState(1);
-  const [pageSize, setPageSize] = useState(5);
+  const [pageSize, setPageSize] = useState(6);
   const fetchedInterests = api.interests.fetchAllInterests.useQuery({
     pageNumber: page,
     pageSize: pageSize,
@@ -57,13 +57,12 @@ const Interests = () => {
     }
   };
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center ">
-      <div className="flex min-w-[576px] min-h-[476px] flex-col items-center justify-center rounded-xl border-2 border-[#C1C1C1] p-10">
+    <main className="flex min-h-[90vh] flex-col items-center justify-center ">
+      <div className="flex min-h-[476px] min-w-[576px] flex-col items-center justify-center rounded-xl border-2 border-[#C1C1C1] p-10">
         {fetchedInterests.isFetching ||
         isUserInterestsFetching ||
         addUserInterest.isPending ||
-        removeUserInterest.isPending
-         ? (
+        removeUserInterest.isPending ? (
           <InfinitySpin
             // visible={true}
             width="200"

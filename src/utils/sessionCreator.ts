@@ -7,7 +7,6 @@ const sessionCreator = async ({ userData }: { userData: userDateType }) => {
   try {
     const payload = {
       userId: userData.id,
-      isEmailVerified: userData.isEmailVerified,
       email: userData.email,
       name: userData.name,
     };
